@@ -1,5 +1,5 @@
-typedef unsigned char FIELD;
+#include "types.h"
 
-FIELD ffAdd(const FIELD field1, const FIELD field2);
-FIELD xtime(const FIELD field);
-FIELD ffMultiply(const FIELD field1, const FIELD field2);
+byte ffAdd(const byte field1, const byte field2);
+byte xtime(const byte field);
+byte ffMultiply(const byte field1, const byte field2);
