@@ -12,6 +12,14 @@ void rotWord(word word) {
   word[3] = temp;
 }
 
+void invRotWord(word word) {
+  byte temp = word[3];
+  word[3] = word[2];
+  word[2] = word[1];
+  word[1] = word[0];
+  word[0] = temp;
+}
+
 void subWord(word word) {
   for (unsigned i = 0; i < WORD_LENGTH; i++) {
     word[i] = getSubByte(word[i]);

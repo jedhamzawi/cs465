@@ -8,6 +8,7 @@
 #include "keyexpansion.h"
 #include "wordmanip.h"
 #include "cipher.h"
+#include "invcipher.h"
 #include "debug.h"
 
 #define BITS_PER_COLUMN 32
@@ -15,6 +16,8 @@
 
 #define BAD_USAGE_ERROR 1
 #define INVALID_SIZE_ERROR 2
+
+unsigned ENC = 1;
 
 unsigned KEY_LENGTH;
 unsigned NK;
@@ -26,30 +29,43 @@ void usage();
 void hexStringToBytes(char hex[], byte bytes[], unsigned size);
 
 int main(int argc, char *argv[]) {
-  if (argc < 4) {
+  if (argc < 5) {
     printf("ERROR: Invalid number of arguments\n");
     usage();
     return BAD_USAGE_ERROR;
   }
 
-  unsigned keyLengthIndex = 1;
-  unsigned inIndex = 2;
-  unsigned keyIndex = 3;
-  if (argc == 5) {
-    if (strcmp(argv[1], "-DEBUG") != 0
-        && strcmp(argv[1], "-d") != 0
-        && strcmp(argv[1], "-d") != 0) {
-      printf("ERROR: Too many arguments. -DEBUG flag must immediately follow program call.\n");
+  unsigned encDecIndex = 1;
+  unsigned keyLengthIndex = 2;
+  unsigned inIndex = 3;
+  unsigned keyIndex = 4;
+  if (argc == 6) {
+    if (strcmp(argv[1], "-DEBUG") != 0 &&
+        strcmp(argv[1], "-d") != 0 &&
+        strcmp(argv[1], "-D") != 0) {
+      printf("ERROR: Too many arguments. To enable debugging, -DEBUG flag must immediately follow program call.\n");
       usage();
       return BAD_USAGE_ERROR;
     }
     DEBUG = 1;
+    encDecIndex++;
     keyLengthIndex++;
     inIndex++;
     keyIndex++;
   }
   else {
     DEBUG = 0;
+  }
+
+  if (strcmp(argv[encDecIndex], "dec") == 0 ||
+      strcmp(argv[encDecIndex], "DEC") == 0) {
+    ENC = 0;
+  }
+  else if (strcmp(argv[encDecIndex], "enc") != 0 &&
+          strcmp(argv[encDecIndex], "ENC") == 0) {
+    printf("ERROR: Invalid encryption/decryption option.");
+    usage();
+    return BAD_USAGE_ERROR;
   }
   
   KEY_LENGTH = strtol(argv[keyLengthIndex], NULL, 10);
@@ -84,11 +100,17 @@ int main(int argc, char *argv[]) {
   keyExpansion(key, w);
   
   byte out[16];
-  cipher(in, out, w);
+
+  if (ENC) {
+    cipher(in, out, w);
+  }
+  else {
+    invCipher(in, out, w);
+  }
 }
 
 void usage() {
- printf("  Usage: ham-aes (-DEBUG) <128/192/256> <data> <key>\n");
+ printf("  Usage: ham-aes <enc/dec> (-DEBUG) <128/192/256> <data> <key>\n");
 }
 
 void hexStringToBytes(char hex[], byte bytes[], unsigned size) {

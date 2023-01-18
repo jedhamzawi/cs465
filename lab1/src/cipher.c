@@ -1,14 +1,13 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include <stdio.h>
 #include "cipher.h"
 #include "sub.h"
 #include "wordmanip.h"
 #include "finitemath.h"
 #include "debug.h"
 
-word MIX_MATRIX[NB] = {
+const word MIX_MATRIX[NB] = {
   {0x02, 0x03, 0x01, 0x01},
   {0x01, 0x02, 0x03, 0x01},
   {0x01, 0x01, 0x02, 0x03},
@@ -20,6 +19,7 @@ void cipher(byte in[4*NB], byte out[4*NB], word w[NB*(NR+1)]) {
   debug_printBytes(in, 4*NB);
   state state;
   inToState(in, state);
+  debug_print("round[ %d].k_sch ", 0);
   addRoundKey(state, w, 0);
   for (unsigned round = 1; round < NR; round++){
     debug_print("round[ %d].start ", round);
@@ -33,6 +33,7 @@ void cipher(byte in[4*NB], byte out[4*NB], word w[NB*(NR+1)]) {
     mixColumns(state);
     debug_print("round[ %d].m_col ", round);
     debug_printState(state);
+    debug_print("round[ %d].k_sch ", round);
     addRoundKey(state, w, round);
   }
   debug_print("round[ %d].start ", NR);
@@ -43,6 +44,7 @@ void cipher(byte in[4*NB], byte out[4*NB], word w[NB*(NR+1)]) {
   shiftRows(state);
   debug_print("round[ %d].s_row ", NR);
   debug_printState(state);
+  debug_print("round[ %d].k_sch ", NR);
   addRoundKey(state, w, NR);
 
   debug_print("round[ %d].output ", NR);
@@ -103,7 +105,6 @@ void setCol(state state, word newCol, unsigned col) {
 }
 
 void addRoundKey(state state, word w[NB*(NR+1)], unsigned round) {
-  debug_print("round[ %d].k_sch ", round);
   debug_printRoundKey(w, round);
   for (unsigned row = 0; row < WORD_LENGTH; row++) {
     for (unsigned col = 0; col < NB; col++) {
