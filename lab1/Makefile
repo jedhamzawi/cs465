@@ -1,5 +1,5 @@
 CC=gcc
-CC_FLAGS := -g
+CC_FLAGS :=
 
 BIN     := bin
 SRC     := src
