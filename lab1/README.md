@@ -53,3 +53,8 @@ Decrypt
 
     ham-aes 256 dec 8ea2b7ca516745bfeafc49904b496089 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
 
+## Statements
+
+I only viewed the approved resources to create the above program.
+
+I passed all test cases given in Appendix C in the documentation.
