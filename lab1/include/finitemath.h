@@ -1,4 +1,4 @@
-#include "types.h"
+#include "global.h"
 
 byte ffAdd(const byte field1, const byte field2);
 byte xtime(const byte field);

@@ -1,63 +1,101 @@
+#ifndef GLOBAL_H
+#define GLOBAL_H
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "finitemath.h"
 #include "keyexpansion.h"
+#include "wordmanip.h"
+#include "cipher.h"
+#include "debug.h"
 
 #define BITS_PER_COLUMN 32
+#define DATA_SIZE_BYTES 16
+
+#define BAD_USAGE_ERROR 1
+#define INVALID_SIZE_ERROR 2
 
 unsigned KEY_LENGTH;
 unsigned NK;
 unsigned NR;
+unsigned char DEBUG;
 
 void printBytes(byte *buf, unsigned size);
 void usage();
+void hexStringToBytes(char hex[], byte bytes[], unsigned size);
 
-//DEFINE Nk (key length) and Nr (num rounds) based on key size
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    printf("ERROR: Key length not provided\n");
+  if (argc < 4) {
+    printf("ERROR: Invalid number of arguments\n");
     usage();
-    return 1;
+    return BAD_USAGE_ERROR;
+  }
+
+  unsigned keyLengthIndex = 1;
+  unsigned inIndex = 2;
+  unsigned keyIndex = 3;
+  if (argc == 5) {
+    if (strcmp(argv[1], "-DEBUG") != 0
+        && strcmp(argv[1], "-d") != 0
+        && strcmp(argv[1], "-d") != 0) {
+      printf("ERROR: Too many arguments. -DEBUG flag must immediately follow program call.\n");
+      usage();
+      return BAD_USAGE_ERROR;
+    }
+    DEBUG = 1;
+    keyLengthIndex++;
+    inIndex++;
+    keyIndex++;
+  }
+  else {
+    DEBUG = 0;
   }
   
-  KEY_LENGTH = strtol(argv[1], NULL, 10);
+  KEY_LENGTH = strtol(argv[keyLengthIndex], NULL, 10);
   if (KEY_LENGTH != 128 && KEY_LENGTH != 192 && KEY_LENGTH != 256) {
-    printf("ERROR: Invalid key length\n");
+    printf("ERROR: Unsupported key length\n");
     usage();
-    return 1;
+    return BAD_USAGE_ERROR;
   }
   NK = KEY_LENGTH / 32;
   NR = NK + 6;
-  printf("0x57 + 0x83 = %x\n", ffAdd(0x57, 0x83));
-  printf("xtime(0x57) = %x\n", xtime(0x57));
-  printf("0x57 * 0x13 = %x\n", ffMultiply(0x57, 0x13));
 
-  byte word1[4] = {0x09, 0xcf, 0x4f, 0x3c};
-  rotWord(word1);
-  printBytes(word1, 4);
+  if (strlen(argv[inIndex]) != DATA_SIZE_BYTES * 2) {
+    printf("ERROR: Input data must have exactly 32 hex digits (16 bytes).\n");
+    return INVALID_SIZE_ERROR;
+  }
+  if (strlen(argv[keyIndex]) != KEY_LENGTH / 4) {
+    printf("ERROR: The given key does not match the specified length.\n"
+      "A key length of %d bits requires a key with %d digits\nGiven: %d\n",
+      KEY_LENGTH, KEY_LENGTH / 4, (int) strlen(argv[3]));
+      return INVALID_SIZE_ERROR;
+  }
 
-  byte word2[4] = {0x00, 0x10, 0x20, 0x30};
-  subWord(word2);
-  printBytes(word2, 4);
+  byte in[DATA_SIZE_BYTES];
+  byte key[KEY_LENGTH / 8];
 
-  byte key[16] = {0x2b, 0x7e, 0x15, 0x16,
-                  0x28, 0xae, 0xd2, 0xa6,
-                  0xab, 0xf7, 0x15, 0x88,
-                  0x09, 0xcf, 0x4f, 0x3c};
+  debug_print("PLAINTEXT: %s\nKEY: %s\n\n", argv[inIndex], argv[keyIndex]);
+  hexStringToBytes(argv[inIndex], in, sizeof in);
+  hexStringToBytes(argv[keyIndex], key, sizeof key);
+
   word w[NB*(NR+1)];
+  
   keyExpansion(key, w);
-
+  
+  byte out[16];
+  cipher(in, out, w);
 }
 
 void usage() {
- printf("Usage: ham-aes [128/192/256]\n");
+ printf("  Usage: ham-aes (-DEBUG) <128/192/256> <data> <key>\n");
 }
 
-void printBytes(byte *buf, unsigned size) {
-  printf("0x");
-  for (unsigned i = 0; i < size; i++)
-  {
-      printf("%02x", buf[i]);
-  }
-  printf("\n");
+void hexStringToBytes(char hex[], byte bytes[], unsigned size) {
+  for (unsigned count = 0; count < size/sizeof *bytes; count++) {
+        sscanf(hex, "%2hhx", &bytes[count]);
+        hex += 2;
+    }
 }
+
+#endif

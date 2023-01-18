@@ -6,7 +6,7 @@ SRC     := src
 INCLUDE := include
 
 LIBRARIES   :=
-EXECUTABLE  := main
+EXECUTABLE  := ham-aes
 
 
 all: $(BIN)/$(EXECUTABLE)

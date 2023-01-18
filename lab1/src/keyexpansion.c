@@ -1,4 +1,8 @@
+#ifndef GLOBAL_H
+#define GLOBAL_H
+
 #include "keyexpansion.h"
+#include "wordmanip.h"
 #include "sub.h"
 #include "finitemath.h"
 
@@ -27,33 +31,6 @@ void keyExpansion(byte key[WORD_LENGTH*NK], word w[NB*(NR+1)]) {
   }
 }
 
-void rotWord(word word) {
-  byte temp = word[0];
-  word[0] = word[1];
-  word[1] = word[2];
-  word[2] = word[3];
-  word[3] = temp;
-}
-
-void subWord(word word) {
-  for (unsigned i = 0; i < WORD_LENGTH; i++) {
-    word[i] = subByte(word[i]);
-  }
-}
-
-// Set word1 equal to word2
-void setWord(word word1, word word2) {
-  for (unsigned i = 0; i < WORD_LENGTH; i++) {
-    word1[i] = word2[i];
-  }
-}
-
-void xOrWords(word word1, word word2, word result) {
-  for (unsigned i = 0; i < WORD_LENGTH; i++) {
-    result[i] = word1[i] ^ word2[i];
-  }
-}
-
 void getRCon(unsigned char round, word rCon) {
   byte x = 0x02;
   for (unsigned char i = 2; i < round; i++) {
@@ -64,3 +41,5 @@ void getRCon(unsigned char round, word rCon) {
   rCon[2] = 0x00;
   rCon[3] = 0x00;
 }
+
+#endif

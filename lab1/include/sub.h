@@ -1,3 +1,3 @@
-#include "types.h"
+#include "global.h"
 
-byte subByte(byte byte);
+byte getSubByte(byte byte);

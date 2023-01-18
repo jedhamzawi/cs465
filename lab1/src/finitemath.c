@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef GLOBAL_H
+#define GLOBAL_H
 
 #include "finitemath.h"
 
@@ -18,8 +18,12 @@ byte xtime(const byte field) {
 }
 
 byte ffMultiply(const byte field1, const byte field2) {
+  if (field2 == 0x01) {
+    return field1;
+  }
+
   byte total = 0;
-  byte term = 0;
+  byte term = 0;  
   for (unsigned char bitIndex = 0; bitIndex < 7; bitIndex++) {
     if (isKthBitSet(field2, bitIndex)) {
       term = field1;

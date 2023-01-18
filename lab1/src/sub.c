@@ -1,3 +1,6 @@
+#ifndef GLOBAL_H
+#define GLOBAL_H
+
 #include "sub.h"
 
 const byte S_BOX[][16] = {
@@ -19,8 +22,11 @@ const byte S_BOX[][16] = {
   { 0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 }
 };
 
-byte subByte(byte byte) {
+byte getSubByte(byte byte) {
   unsigned char firstDigit = byte >> 4;
   unsigned char secondDigit = byte & 0x0f;
   return S_BOX[firstDigit][secondDigit];
 }
+
+
+#endif
