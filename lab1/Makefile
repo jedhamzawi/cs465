@@ -1,4 +1,4 @@
-CC=clang
+CC=gcc
 CC_FLAGS := -g
 
 BIN     := bin
