@@ -27,6 +27,7 @@ unsigned char DEBUG;
 void printBytes(byte *buf, unsigned size);
 void usage();
 void hexStringToBytes(char hex[], byte bytes[], unsigned size);
+void printBytes(byte buf[], unsigned size);
 
 int main(int argc, char *argv[]) {
   if (argc < 5) {
@@ -35,8 +36,8 @@ int main(int argc, char *argv[]) {
     return BAD_USAGE_ERROR;
   }
 
-  unsigned encDecIndex = 1;
-  unsigned keyLengthIndex = 2;
+  unsigned keyLengthIndex = 1;
+  unsigned encDecIndex = 2;
   unsigned inIndex = 3;
   unsigned keyIndex = 4;
   if (argc == 6) {
@@ -48,14 +49,23 @@ int main(int argc, char *argv[]) {
       return BAD_USAGE_ERROR;
     }
     DEBUG = 1;
-    encDecIndex++;
     keyLengthIndex++;
+    encDecIndex++;
     inIndex++;
     keyIndex++;
   }
   else {
     DEBUG = 0;
   }
+  
+  KEY_LENGTH = strtol(argv[keyLengthIndex], NULL, 10);
+  if (KEY_LENGTH != 128 && KEY_LENGTH != 192 && KEY_LENGTH != 256) {
+    printf("ERROR: Unsupported key length\n");
+    usage();
+    return BAD_USAGE_ERROR;
+  }
+  NK = KEY_LENGTH / 32;
+  NR = NK + 6;
 
   if (strcmp(argv[encDecIndex], "dec") == 0 ||
       strcmp(argv[encDecIndex], "DEC") == 0) {
@@ -67,15 +77,6 @@ int main(int argc, char *argv[]) {
     usage();
     return BAD_USAGE_ERROR;
   }
-  
-  KEY_LENGTH = strtol(argv[keyLengthIndex], NULL, 10);
-  if (KEY_LENGTH != 128 && KEY_LENGTH != 192 && KEY_LENGTH != 256) {
-    printf("ERROR: Unsupported key length\n");
-    usage();
-    return BAD_USAGE_ERROR;
-  }
-  NK = KEY_LENGTH / 32;
-  NR = NK + 6;
 
   if (strlen(argv[inIndex]) != DATA_SIZE_BYTES * 2) {
     printf("ERROR: Input data must have exactly 32 hex digits (16 bytes).\n");
@@ -99,7 +100,7 @@ int main(int argc, char *argv[]) {
   
   keyExpansion(key, w);
   
-  byte out[16];
+  byte out[WORD_LENGTH*NB];
 
   if (ENC) {
     cipher(in, out, w);
@@ -107,10 +108,14 @@ int main(int argc, char *argv[]) {
   else {
     invCipher(in, out, w);
   }
+
+  if (!DEBUG) {
+    printBytes(out, WORD_LENGTH*NB);
+  }
 }
 
 void usage() {
- printf("  Usage: ham-aes <enc/dec> (-DEBUG) <128/192/256> <data> <key>\n");
+ printf("  Usage: ham-aes (-DEBUG) <128/192/256> <enc/dec> <data> <key>\n");
 }
 
 void hexStringToBytes(char hex[], byte bytes[], unsigned size) {
@@ -118,6 +123,13 @@ void hexStringToBytes(char hex[], byte bytes[], unsigned size) {
         sscanf(hex, "%2hhx", &bytes[count]);
         hex += 2;
     }
+}
+
+void printBytes(byte buf[], unsigned size) {
+  for (unsigned i = 0; i < size; i++) {
+    printf("%02x", buf[i]);
+  }
+  printf("\n");
 }
 
 #endif
