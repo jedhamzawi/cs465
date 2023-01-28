@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 ATTACK=$1
 BITS=$2
