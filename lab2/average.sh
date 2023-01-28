@@ -1,15 +1,16 @@
 #!/bin/bash
 
-ATTACK=$1
-BITS=$2
-ITERS=$3
-TOTAL=0
-for i in {1..$ITERS}
+attack=$1
+bits=$2
+iters=$3
+total=0
+for (( i = 0; i < $iters; i++ ))
 do
-    ATTEMPTS=$(./hash-attack $ATTACK $BITS | grep "Found match in" | tr -d -c 0-9)
-    TOTAL=$(($TOTAL + $ATTEMPTS))
-    echo $ATTEMPTS
+    attempts=$(./hash-attack $attack $bits | grep "Found match in" | tr -d -c 0-9)
+    total=$((total+attempts))
+    echo $attempts
 done
 
-echo "Total: $TOTAL"
-echo "Average: $(($TOTAL / $ITERS))"
+echo "Total: $total"
+echo "Average: $((total/iters))"
+
