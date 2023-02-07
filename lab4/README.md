@@ -7,7 +7,7 @@ My implemntation of the Diffie-Hellman algorithm for public/private key computat
 Make sure you have Go installed, then run:
 
 ```
-go build diffie-hellman.go
+go build ham-diffie-hellman.go
 ```
 
 ### How to run
