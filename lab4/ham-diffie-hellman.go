@@ -9,6 +9,8 @@ import (
 )
 
 func main() {
+	const BITSIZE int = 512
+
 	if len(os.Args) < 2 || len(os.Args) == 3 || len(os.Args) > 5 {
 		fmt.Println("Invalid arguments!")
 		usage()
@@ -28,8 +30,8 @@ func main() {
 		aBig.SetString(os.Args[2], 10)
 		pBig.SetString(os.Args[3], 10)
 	} else if len(os.Args) == 2 {
-		aBig = randBigInt(512)
-		pBig = safePrime(512)
+		aBig = randBigInt(int64(BITSIZE))
+		pBig = safePrime(BITSIZE)
 	}
 	fmt.Printf("a: %s\n", aBig.String())
 	fmt.Printf("p: %s\n", pBig.String())
@@ -66,7 +68,7 @@ func safePrime(bitsize int) *big.Int {
 		panic(err)
 	}
 	for pBig.Sub(pBig.Div(pBig, big.NewInt(2)), one).ProbablyPrime(20) {
-		pBig, err = rand.Prime(rand.Reader, 512)
+		pBig, err = rand.Prime(rand.Reader, bitsize)
 		if err != nil {
 			panic(err)
 		}
