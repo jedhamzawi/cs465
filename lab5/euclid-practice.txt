@@ -1,0 +1,37 @@
+1)
+
+n = 55
+fi(n) = 40
+
+ed + fi(n)k = 1
+
+WANT d
+
+3d + 40k = 1
+40 = 13 * 3 + 1
+
+40 -13 * 3 = 1
+d = -13 + 40 = 27
+
+public key = {3, 55}
+private key = {27, 55}
+
+2)
+
+REMEMBER: e and fi(n) must be coprime
+GCD(x, y) = GCD(y, x%y) if x > y (recursive)
+
+n = 143
+fi(n) = 120
+
+ed + fi(n)k = 1
+7d + 120k = 1
+
+120 = 17 * 7 + 1
+120 - 17 * 7 = 1
+
+d = -17 + 120 = 103
+
+public = {7, 143}
+private = {103, 143}
+

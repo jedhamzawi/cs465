@@ -5,59 +5,88 @@ import (
 	"fmt"
 	"math/big"
 	"os"
-	"strconv"
 )
+
+var DEBUG bool = false
 
 func main() {
 	const BITSIZE int = 512
-
-	if len(os.Args) < 2 || len(os.Args) == 3 || len(os.Args) > 5 {
-		fmt.Println("Invalid arguments!")
+	var argOffset int = 0
+	if len(os.Args) < 2 {
+		fmt.Println("No arguments given!")
 		usage()
 		os.Exit(1)
 	}
 
-	g, parseErr := strconv.Atoi(os.Args[1])
-	if parseErr != nil {
-		panic(parseErr)
+	if os.Args[1] == "-d" ||
+		os.Args[1] == "-D" ||
+		os.Args[1] == "-debug" ||
+		os.Args[1] == "-DEBUG" {
+		DEBUG = true
+		argOffset++
 	}
+
+	if len(os.Args) == 3+argOffset || len(os.Args) > 5+argOffset {
+		fmt.Println("Invalid arguments!")
+		usage();
+		os.Exit(1)
+	}
+
 
 	var aBig *big.Int = new(big.Int)
 	var pBig *big.Int = new(big.Int)
-	var gBig *big.Int = big.NewInt(int64(g))
+	var gBig *big.Int = new(big.Int)
 
-	if len(os.Args) >= 4 {
-		aBig.SetString(os.Args[2], 10)
-		pBig.SetString(os.Args[3], 10)
-	} else if len(os.Args) == 2 {
+	gBig.SetString(os.Args[1+argOffset], 10)
+
+	if len(os.Args) >= 4+argOffset {
+		aBig.SetString(os.Args[2+argOffset], 10)
+		pBig.SetString(os.Args[3+argOffset], 10)
+	} else if len(os.Args) == 2+argOffset {
 		aBig = randBigInt(int64(BITSIZE))
 		pBig = safePrime(BITSIZE)
 	}
-	fmt.Printf("a: %s\n", aBig.String())
-	fmt.Printf("p: %s\n", pBig.String())
+	printDebug("a: %s\n", aBig.String())
+	printDebug("p: %s\n", pBig.String())
 
-	if len(os.Args) != 5 {
+	if len(os.Args) != 5+argOffset {
 		ga := modExp(gBig, aBig, pBig)
-		fmt.Printf("g^a mod p: %s\n", ga.String())
+		printDebug("g^a mod p: %s\n", ga.String())
+		println(ga.String())
 	} else {
 		var bBig *big.Int = new(big.Int)
 		bBig.SetString(os.Args[4], 10)
 
-		fmt.Printf("b: %s\n", bBig.String())
+		printDebug("b: %s\n", bBig.String())
 
 		gab := modExp(bBig, aBig, pBig)
-		fmt.Printf("g^ab mod p: %s\n", gab.String())
+		printDebug("g^ab mod p: %s\n", gab.String())
+		println(gab.String())
 	}
 }
 
 func usage() {
 	fmt.Println("Usage:")
 	fmt.Println("  Calculate mod-exp (g^a mod p) with random values for \"a\" and \"p\"")
-	fmt.Println("    diffie-hellman <g>")
+	fmt.Println("    ham-diffie-hellman <g>")
 	fmt.Println("  Calculate mod-exp (g^a mod p)")
-	fmt.Println("    diffie-hellman <g> <a> <p>")
+	fmt.Println("    ham-diffie-hellman <g> <a> <p>")
 	fmt.Println("  Calculate mod-exp (g^[a*b] mod p) ")
-	fmt.Println("    diffie-hellman <g> <a> <p> <b>")
+	fmt.Println("    ham-diffie-hellman <g> <a> <p> <b>")
+	fmt.Println("  Debug mode")
+	fmt.Println("    ham-diffie-hellman <-d/-D/-debug/-DEBUG> <...args>")
+}
+
+func println(text string) {
+	if !DEBUG {
+		fmt.Println(text)
+	}
+}
+
+func printDebug(format string, args ...any) {
+	if DEBUG {
+		fmt.Printf(format, args...)
+	}
 }
 
 // Generate safe prime where p is prime and p/2-1 is also prime
